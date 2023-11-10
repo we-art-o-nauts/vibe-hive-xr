@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>•⬡The•Vibe•Hive⬡•</title>
+    <meta name="description" content="A Hack the Hackathon v3 experience">
+    
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
+
+</head>
+<body>
+<script>
+
+AFRAME.registerComponent('updater', {
+
+  timeStart: null,
+  timeTotal: 30,
+	
+	init: function()
+	{
+		// apply material to this.el.object3d
+	},
+
+	tick: function (time, timeDelta) 
+	{
+    if (this.timeStart == null) {
+      this.timeStart = time + ((this.timeTotal + 3) * 1000);
+    }
+		let t = Math.round((this.timeStart - time)/1000);
+		let newText = "|           " + t;
+		let currentText = this.el.getAttribute("text")["value"];
+
+		// only update if newText is different than current text displayed.
+		if (newText != currentText && t < this.timeTotal && t > 0)
+		{
+			this.el.setAttribute("text", "value", newText)
+		}
+		else if (t < 0) {
+      this.el.setAttribute("text", "value", "feeling the vibe")
+		}
+	}
+	
+});
+
+</script>
+<a-scene>
+	
+	<a-assets>
+		<img id="sky" src="assets/stemkoski-stars.jpg"  />
+		<img id="sand" src="assets/Liiv - Siim Sepp - CC BY.jpg" />
+		<img id="hexagons" src="assets/stemkoski-hexagons.png" />
+		<img id="vibes" src="assets/goodvibes.jpg" />
+		<a-asset-item id="pod" src="assets/pod.obj"></a-asset-item>
+
+		<a-asset-item id="customFont" src="assets/helvetiker_regular.typeface.json"></a-asset-item>
+		<a-asset-item id="pod" src="assets/pod.glb"></a-asset-item>
+		<a-mixin id="light" geometry="primitive: sphere; radius: .25" light="color: #FFF; intensity: .5; type: point" material="shader: flat"></a-mixin>
+
+	</a-assets>
+
+	<a-sky 
+		rotation = "0 0 0"
+		color = "#FFFFFF"
+		material = "src: #sky">
+	</a-sky>
+	
+	<a-entity light="color: #fff; type: ambient"></a-entity>
+  <a-entity mixin="light" position="0 0 70"></a-entity>
+
+	<a-plane
+		width="500" height="500"
+		position=" 0.00 0.00 -5.00" 
+		rotation="-90 0 0" 
+		color="#888888" 
+		material="src: #vibes; repeat:30 32"
+		shadow="cast: false; receive: true">
+	</a-plane>
+	
+  <a-entity 
+    id="textArea"
+    scale="20 20 1"
+    position=" 7.00 3.00 -5.00" 
+    material="color: #AAAAFF; src: #hexagons; repeat: 20 20;"
+    text="value: Breathe in ...|;"
+    updater>
+  </a-entity>
+    
+  <a-entity
+    obj-model="obj: #pod;"
+    material="opacity: 0.1; src: #sand; side: double; shader:phong; reflectivity: 0.9; shininess: 30;"
+    scale="1.5 1.5 1.5"
+    position="0 3 -8"
+    rotation="0 -45 0">
+  </a-gltf-model>
+
+	
+</a-scene>
+</body>
+</html>
