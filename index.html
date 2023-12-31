@@ -5,6 +5,8 @@
     <title>• ⬡ The • Vibe • Hive ⬡ •</title>
     <meta name="description" content="A Hack the Hackathon v3 experience">
     
+    <script src="https://cdn.jsdelivr.net/npm/cash-dom/dist/cash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
 
@@ -12,76 +14,7 @@
 <body>
 <script>
 
-window.addEventListener('load', function() {
-  document.getElementById('music').addEventListener('click', function() {
-    document.getElementById('music').style.display = 'none';
-    document.getElementById('soundcloud').style.display = 'block';
-    document.getElementById('soundcloud').src = 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/157098949&color=%23a8b0b4&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true';
-  });
-});
-
-AFRAME.registerComponent('updater', {
-
-  timePause: 6,
-  timeTotal: 30,
-  timeStart: null,
-  textShown: '',
-  textCurrent: '',
-  textSpeed: 2,
-	
-	init: function()
-	{
-		this.writenow('breathe in.')
-	},
-	
-	writenow: function (what) {
-    if (this.textCurrent == what) return;
-    this.textShown = '';
-    this.textCurrent = what;
-	},
-	
-	typeit: function() {
-    let cur = this.textShown;
-    const txt = this.textCurrent;
-    if (cur.length < txt.length) {
-      cur += txt.charAt(cur.length);
-      this.textShown = cur;
-      if (cur.length < txt.length) {
-        cur += '|';
-      }
-      this.el.setAttribute("text", "value", cur);
-      //console.log(this.textShown, this.textCurrent);
-    }
-  },
-
-	tick: function (time, timeDelta) 
-	{
-    if (this.timeStart == null) {
-      this.timeStart = time + ((this.timeTotal + this.timePause) * 1000);
-    }
-		let t = Math.round((this.timeStart - time)/1000);
-		let newText = "𝅳           " + (t < 10 ? ' ' + t : t);
-		let currentText = this.el.getAttribute("text")["value"];
-
-		// only update if newText is different than current text displayed.
-		if (newText != currentText && t < this.timeTotal && t > 0) {
-			this.writenow(newText);
-		}
-		else if (t > this.timeTotal && t < this.timeTotal + 3) {
-      this.writenow('breathe out ...')
-		}
-		else if (t < 1 && t > -5) {
-      this.writenow("feeling the vibe");
-		}
-		else if (t < -4) {
-      this.el.setAttribute("text", "color", "#fee190");
-      this.writenow("The Vibe Hive");
-		}
-		
-		this.typeit();		
-	}
-	
-});
+const SOUNDCLOUD_LINK = 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/157098949&color=%23a8b0b4&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true';
 
 </script>
 <a-scene>
@@ -109,13 +42,14 @@ AFRAME.registerComponent('updater', {
   <a-entity mixin="light" position="0 0 70"></a-entity>
 
 	<a-plane
+		id="theWorld"
 		width="500" height="500"
 		position=" 0.00 0.00 -5.00" 
 		rotation="-90 0 0" 
 		color="#888888" 
 		material="src: #vibes; opacity:0.5; repeat:30 32; shader:phong; reflectivity: 0.9; shininess: 30;"
-		animation__move="property: position; to: 60 -10 100; loop: false; dur: 30000"    
-		animation__fade="delay: 3000; property: material.opacity; to: 0; loop: false; dur: 15000"
+		animation__move="property: position; to: 60 -10 100; loop: false; dur: 30000; startEvents: letsGo"    
+		animation__fade="delay: 3000; property: material.opacity; to: 0; loop: false; dur: 15000; startEvents: letsGo"
 
 		shadow="cast: false; receive: true">
 	</a-plane>
@@ -133,8 +67,8 @@ AFRAME.registerComponent('updater', {
     id="thePod"
     obj-model="obj: #pod;"
     material="opacity: 0.4; src: #hexagons; repeat: 68 68; side: double; shader:phong; reflectivity: 0.9; shininess: 30;"
-    animation__fade="property: material.opacity; to: 0; loop: false; dur: 30000"
-    animation__move="delay: 5000; property: position; to: 0 3 -3; loop: false; dur: 30000"   
+    animation__fade="property: material.opacity; to: 0; loop: false; dur: 30000; startEvents: letsGo"
+    animation__move="delay: 5000; property: position; to: 0 3 -3; loop: false; dur: 30000; startEvents: letsGo"   
     scale="1.5 1.5 1.5"
     position="0 3 -8"
     rotation="0 -45 0"
@@ -144,21 +78,82 @@ AFRAME.registerComponent('updater', {
 	
 </a-scene>
 
+<div class="start-buttons">
+	<div class="start-btn" data-dur="thirty">
+		<span><b>30 s</b><i>break</i></span>
+	</div>
+	<div class="start-btn" data-dur="pomodoro">
+		<span><b>25 min</b><i>pomodoro</i></span>
+	</div>
+	<div class="start-btn" data-dur="midnight">
+		<span><b>midnight</b><i>happy new year!</i></span>
+	</div>
+</div>
+
+<div id="restart" title="Restart countdown">↻</div>
 <div id="music" title="Open Soundcloud">♪</div>
 <iframe id="soundcloud" width="400" height="80" scrolling="no" frameborder="no" allow="autoplay" src="" style="display:none"></iframe>
+
 <style type="text/css">
-#music, #soundcloud {
+#music, #soundcloud, #restart {
   position: fixed; 
   z-index: 999; 
   bottom: 0px; 
   left: 0px;
 }
-#music {
+#music, #restart {
   font-size: 60pt;
   color: white;
   padding: 0.2em 0.5em;
   cursor: pointer;
 }
+#restart {
+	margin-left: 1em;
+	font-size: 50pt;
+}
+
+.start-buttons {
+  background: rgba(255,255,255,0.4);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  margin-left: -200px;
+  margin-top: -4em;
+  padding: 0.5em;
+  border-radius: 1em;
+  box-shadow: 3px -5px 5px grey;
+  text-align: center;
+}
+.start-btn:hover {
+  background: rgba(255,255,255,1);
+  border: 1px solid white;
+}
+.start-btn {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid black;
+  border-radius: 1em;
+  width: 25%;
+  display: inline-block;
+  height: 6em;
+  margin: 0px 1%;
+  vertical-align: bottom;
+  box-shadow: 3px 3px 3px grey;
+  margin: 5px;
+  text-align: left;
+  padding: 0.5em;
+  cursor: pointer;
+}
+.start-btn span {
+	font-size: 18pt;
+	font-family: serif;
+}
+.start-btn b {
+	font-size: 19pt;
+	display: block;
+}
+
 </style>
+<script src="index.js"></script>
 </body>
 </html>
